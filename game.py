@@ -102,6 +102,9 @@ def solveGame(U_crash_y=-100, U_crash_x=-100, U_time=1., NY=20, NX=20):
 			Y=[[0,0],[0,0]]
 			X=[[0,0],[0,0]]
 
+
+			#pdb.set_trace()
+
 			#make subgame payoff matrix.  Actions: move-1, move-2
 			for ay in [1,2]:        #action me, action u
 				for ax in [1,2]:
@@ -119,23 +122,55 @@ def solveGame(U_crash_y=-100, U_crash_x=-100, U_time=1., NY=20, NX=20):
 			#compute the nashes - pynash
 			G = nash.Game(Y, X)
 			eqs = G.support_enumeration()
+
+			#question one: is there at least one symetric equilibrium?
+			b_exists_sym_eq = False
+			
+			eq_list=[]
+			for eq in eqs:
+				eq_list.append(eq)
+			
+
+			for eq in eq_list:
+				#pdb.set_trace()
+				b_sym = np.abs(eq[0][0] - eq[1][0]) < 0.0001            #symetric
+				if b_sym:
+					b_exists_sym_eq = True			
+			#pdb.set_trace()
+
+
+			#throw away any dominated ones
 			eq_best = 0 
 			vY_best = -999 #vals of both players at single best known equilibrium
 			vX_best = -999
-			for eq in eqs:
-				b_sym = (eq[0][0]==eq[1][0])            #symetric (NB the game is not sym though)
-				(vY,vX) = G[eq[0], eq[1]]         #values to players
-				b_dom = ( vY<vY_best and vX < vX_best )    #is it dominated?
+			
+#			pdb.set_trace()
+			for eq in eq_list:
+				b_sym = np.abs(eq[0][0]-eq[1][0]) < 0.0001 #real number equality is uncomputable! 
+								#how do we know what floating point
+								#is being used by the other player !?	
 
-				if (eq_best==0) or (not b_dom and not b_sym):   #ignore dominated and non-symetric nashes (TODO Think about sym?)
-					eq_best = eq     #TODO what if multiple non-dominateds? -- then do CF iteration basin thing!
+				#if b_exists_sym_eq and not b_sym:
+				#	continue   #discard asym equilibria if there exist sym ones
+
+				(vY,vX) = G[eq[0], eq[1]]         #values to players
+				#b_dom = ( vY<vY_best and vX < vX_best )    #is it dominated?
+
+				#HACK HACK HACK
+				#if not b_dom:    #assume for now that there is only one of these!
+				if b_sym:    #assume for now that there is only one of these!
+					eq_best = eq     #TODO metatrategy convergence is more than one
 					vY_best=vY
 					vX_best=vX
 
+			#then meta-strategy convergence... TODO
+		
+			#pdb.set_trace()
+		
 			print("best", eq_best)
 			#log results
-			S[y,x,0] = eq[0][0]  #yield probs -> strategy  
-			S[y,x,1] = eq[1][0]
+			S[y,x,0] = eq_best[0][0]  #yield probs -> strategy  
+			S[y,x,1] = eq_best[1][0]
 			V[y,x,0] = vY_best
 			V[y,x,1] = vX_best
 	return (V,S)
