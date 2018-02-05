@@ -79,16 +79,16 @@ def solveGame(U_crash_y=-100, U_crash_x=-100, U_time=1., NY=20, NX=20):
 	Y=0 ; X=1
 	for x in range(1,NX):    #Y has won
 	    V[0,x,Y] = 0.    	    
-	    V[0,x,X] = -U_time*(x/2)  
+	    V[0,x,X] = -U_time*(x/2.)  
 	for x in range(2,NX):
 	    V[1,x,Y] = 0.            
-	    V[1,x,X] = -U_time*((x-1)/2)
+	    V[1,x,X] = -U_time*((x-1)/2.)
 	for y in range(1,NY):    #X has won
 	    V[y,0,X] = 0. 
-	    V[y,0,Y] = -U_time*(y/2)  
+	    V[y,0,Y] = -U_time*(y/2.)  
 	for y in range(2,NY):
 	    V[y,1,X] = 0.     	    
-	    V[y,1,Y] = -U_time*((y-1)/2)
+	    V[y,1,Y] = -U_time*((y-1)/2.)
 	#crash end states -- overwrite
 	V[0,0,Y] = U_crash_y
 	V[0,0,X] = U_crash_x
